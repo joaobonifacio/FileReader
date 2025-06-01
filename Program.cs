@@ -19,11 +19,12 @@ class Program
         Console.WriteLine("6 - Text with Role-Based Access");
         Console.WriteLine("7 - JSON");
         Console.WriteLine("8 - Encrypted JSON File");
+        Console.WriteLine("9 - JSON with Role-Based Access");
 
         string typeInput = "";
-        while (!new[] { "1", "2", "3", "4", "5", "6", "7", "8" }.Contains(typeInput))
+        while (!new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" }.Contains(typeInput))
         {
-            Console.Write("Enter your choice (1 to 8): ");
+            Console.Write("Enter your choice (1 to 9): ");
             typeInput = Console.ReadLine()?.Trim();
         }
 
@@ -82,6 +83,25 @@ class Program
             var encryption = new ReverseEncryption();
             reader = new EncryptedJsonFileReader(encryption);
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "encrypted.json");
+        }
+        else if (typeInput == "9")
+        {
+            Console.WriteLine("Select your role:");
+            Console.WriteLine("1 - Admin");
+            Console.WriteLine("2 - Employee");
+
+            string roleInput = "";
+            while (roleInput != "1" && roleInput != "2")
+            {
+                Console.Write("Enter role number: ");
+                roleInput = Console.ReadLine()?.Trim();
+            }
+
+            UserRole userRole = roleInput == "1" ? UserRole.Admin : UserRole.Employee;
+            var validator = new SimpleRoleValidator(userRole);
+            reader = new SecuredJsonFileReader(validator);
+
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "role.json");
         }
         else // typeInput == "4"
         {

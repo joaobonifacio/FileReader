@@ -1,0 +1,11 @@
+{
+  "public": {
+    "message": "This section is visible to all roles."
+  },
+  "shared": {
+    "summary": "This section is visible to Admin and Employee."
+  },
+  "admin": {
+    "logs": "This section is visible to Admin only."
+  }
+}
