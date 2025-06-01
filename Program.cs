@@ -15,11 +15,12 @@ class Program
         Console.WriteLine("2 - XML");
         Console.WriteLine("3 - Encrypted Text (reverse only)");
         Console.WriteLine("4 - XML with Role-Based Access");
+        Console.WriteLine("5 - Encrypted XML (reverse only)"); 
 
         string typeInput = "";
-        while (!new[] { "1", "2", "3", "4" }.Contains(typeInput))
+        while (!new[] { "1", "2", "3", "4", "5" }.Contains(typeInput)) 
         {
-            Console.Write("Enter your choice (1–4): ");
+            Console.Write("Enter your choice (1 to 5): "); 
             typeInput = Console.ReadLine()?.Trim();
         }
 
@@ -42,6 +43,13 @@ class Program
             var encryption = new ReverseEncryption();
             reader = new EncryptedTextFileReader(encryption);
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "encrypted.txt");
+        }
+        else if (typeInput == "5") 
+        {
+            Console.WriteLine("Reverse character decryption only (for XML).");
+            var encryption = new ReverseEncryption();
+            reader = new EncryptedXmlFileReader(encryption); 
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "encrypted.xml");
         }
         else // typeInput == "4"
         {
