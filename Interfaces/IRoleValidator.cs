@@ -9,5 +9,6 @@ namespace FileReaderApp.Interfaces
     public interface IRoleValidator
     {
         bool CanAccess(string[] allowedRoles);
+        bool IsInRole(FileReaderApp.Role.Role role);
     }
 }

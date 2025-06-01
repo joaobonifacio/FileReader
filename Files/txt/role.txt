@@ -1,0 +1,8 @@
+[PUBLIC]
+Welcome to the system. This section is visible to all.
+
+[ADMIN]
+Admin-only logs and metrics are shown here.
+
+[SHARED]
+Both Admin and Employee can see this shared data.

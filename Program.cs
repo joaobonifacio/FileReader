@@ -15,12 +15,13 @@ class Program
         Console.WriteLine("2 - XML");
         Console.WriteLine("3 - Encrypted Text (reverse only)");
         Console.WriteLine("4 - XML with Role-Based Access");
-        Console.WriteLine("5 - Encrypted XML (reverse only)"); 
+        Console.WriteLine("5 - Encrypted XML (reverse only)");
+        Console.WriteLine("6 - Text with Role-Based Access"); 
 
         string typeInput = "";
-        while (!new[] { "1", "2", "3", "4", "5" }.Contains(typeInput)) 
+        while (!new[] { "1", "2", "3", "4", "5", "6" }.Contains(typeInput))
         {
-            Console.Write("Enter your choice (1 to 5): "); 
+            Console.Write("Enter your choice (1 to 6): ");
             typeInput = Console.ReadLine()?.Trim();
         }
 
@@ -44,12 +45,30 @@ class Program
             reader = new EncryptedTextFileReader(encryption);
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "encrypted.txt");
         }
-        else if (typeInput == "5") 
+        else if (typeInput == "5")
         {
             Console.WriteLine("Reverse character decryption only (for XML).");
             var encryption = new ReverseEncryption();
-            reader = new EncryptedXmlFileReader(encryption); 
+            reader = new EncryptedXmlFileReader(encryption);
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "encrypted.xml");
+        }
+        else if (typeInput == "6")
+        {
+            Console.WriteLine("Select your role:");
+            Console.WriteLine("1 - Admin");
+            Console.WriteLine("2 - Employee");
+
+            string roleInput = "";
+            while (roleInput != "1" && roleInput != "2")
+            {
+                Console.Write("Enter role number: ");
+                roleInput = Console.ReadLine()?.Trim();
+            }
+
+            UserRole userRole = roleInput == "1" ? UserRole.Admin : UserRole.Employee;
+            var validator = new SimpleRoleValidator(userRole);
+            reader = new SecuredTextFileReader(validator); // 🔧 NEW
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "role.txt"); // 🔧 NEW
         }
         else // typeInput == "4"
         {

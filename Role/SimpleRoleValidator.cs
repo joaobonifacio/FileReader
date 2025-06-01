@@ -20,5 +20,10 @@ namespace FileReaderApp.Role
         {
             return allowedRoles.Any(r => string.Equals(r.Trim(), _currentRole.ToString(), StringComparison.OrdinalIgnoreCase));
         }
+
+        public bool IsInRole(Role role)
+        {
+            return _currentRole == role;
+        }
     }
 }
