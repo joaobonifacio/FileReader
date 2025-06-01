@@ -18,11 +18,12 @@ class Program
         Console.WriteLine("5 - Encrypted XML (reverse only)");
         Console.WriteLine("6 - Text with Role-Based Access");
         Console.WriteLine("7 - JSON");
+        Console.WriteLine("8 - Encrypted JSON File");
 
         string typeInput = "";
-        while (!new[] { "1", "2", "3", "4", "5", "6", "7" }.Contains(typeInput))
+        while (!new[] { "1", "2", "3", "4", "5", "6", "7", "8" }.Contains(typeInput))
         {
-            Console.Write("Enter your choice (1 to 6): ");
+            Console.Write("Enter your choice (1 to 8): ");
             typeInput = Console.ReadLine()?.Trim();
         }
 
@@ -75,6 +76,12 @@ class Program
         {
             reader = new JsonFileReader();
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "sample.json");
+        }
+        else if (typeInput == "8")
+        {
+            var encryption = new ReverseEncryption();
+            reader = new EncryptedJsonFileReader(encryption);
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "encrypted.json");
         }
         else // typeInput == "4"
         {
