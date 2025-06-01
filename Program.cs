@@ -1,21 +1,22 @@
 ﻿using FileReaderApp.FileReaders;
+using FileReaderApp.Encryption;
 using FileReaderApp.Interfaces;
 using System;
-using System.IO; 
+using System.IO;
 
 class Program
 {
     static void Main()
     {
-        //Ask user for file type
         Console.WriteLine("Choose file type:");
-        Console.WriteLine("1 - Text file");
-        Console.WriteLine("2 - XML file");
+        Console.WriteLine("1 - Plain Text");
+        Console.WriteLine("2 - XML");
+        Console.WriteLine("3 - Encrypted Text (reverse-character encryption only)");
 
         string typeInput = "";
-        while (typeInput != "1" && typeInput != "2")
+        while (typeInput != "1" && typeInput != "2" && typeInput != "3")
         {
-            Console.Write("Enter your choice (1 or 2): ");
+            Console.Write("Enter your choice (1 = TXT, 2 = XML, 3 = Encrypted TXT (reverse-character encryption only)): ");
             typeInput = Console.ReadLine()?.Trim();
         }
 
@@ -27,10 +28,18 @@ class Program
             reader = new TextFileReader();
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "sample.txt");
         }
-        else
+        else if (typeInput == "2")
         {
             reader = new XmlFileReader();
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "sample.xml"); 
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "sample.xml");
+        }
+        else // Encrypted Text
+        {
+            Console.WriteLine("Only reverse-character encryption is supported (e.g. 'olleH' decrypts to 'Hello').");
+
+            var encryption = new ReverseEncryption();
+            reader = new EncryptedTextFileReader(encryption);
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "encrypted.txt");
         }
 
         Console.Write($"Enter the path to the file, or press ENTER to use default ({defaultPath}): ");
