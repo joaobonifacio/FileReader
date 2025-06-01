@@ -10,134 +10,143 @@ class Program
 {
     static void Main()
     {
-        Console.WriteLine("Choose file type:");
-        Console.WriteLine("1 - Plain Text");
-        Console.WriteLine("2 - XML");
-        Console.WriteLine("3 - Encrypted Text (reverse only)");
-        Console.WriteLine("4 - XML with Role-Based Access");
-        Console.WriteLine("5 - Encrypted XML (reverse only)");
-        Console.WriteLine("6 - Text with Role-Based Access");
-        Console.WriteLine("7 - JSON");
-        Console.WriteLine("8 - Encrypted JSON File");
-        Console.WriteLine("9 - JSON with Role-Based Access");
+        while (true)
+        {
+            Console.WriteLine("\n Choose file type:");
+            Console.WriteLine("1 - Text");
+            Console.WriteLine("2 - XML");
+            Console.WriteLine("3 - JSON");
+            Console.WriteLine("Q - Quit");
 
-        string typeInput = "";
-        while (!new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" }.Contains(typeInput))
-        {
-            Console.Write("Enter your choice (1 to 9): ");
-            typeInput = Console.ReadLine()?.Trim();
-        }
+            Console.Write("Your choice: ");
+            var fileType = Console.ReadLine()?.Trim().ToUpper();
 
-        IFileReader reader;
-        string defaultPath;
+            if (fileType == "Q") break;
 
-        if (typeInput == "1")
-        {
-            reader = new TextFileReader();
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "sample.txt");
-        }
-        else if (typeInput == "2")
-        {
-            reader = new XmlFileReader();
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "sample.xml");
-        }
-        else if (typeInput == "3")
-        {
-            Console.WriteLine("Reverse character decryption only.");
-            var encryption = new ReverseEncryption();
-            reader = new EncryptedTextFileReader(encryption);
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "encrypted.txt");
-        }
-        else if (typeInput == "5")
-        {
-            Console.WriteLine("Reverse character decryption only (for XML).");
-            var encryption = new ReverseEncryption();
-            reader = new EncryptedXmlFileReader(encryption);
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "encrypted.xml");
-        }
-        else if (typeInput == "6")
-        {
-            Console.WriteLine("Select your role:");
-            Console.WriteLine("1 - Admin");
-            Console.WriteLine("2 - Employee");
-
-            string roleInput = "";
-            while (roleInput != "1" && roleInput != "2")
+            if (!new[] { "1", "2", "3" }.Contains(fileType))
             {
-                Console.Write("Enter role number: ");
-                roleInput = Console.ReadLine()?.Trim();
+                Console.WriteLine(" Invalid option.");
+                continue;
             }
 
-            UserRole userRole = roleInput == "1" ? UserRole.Admin : UserRole.Employee;
-            var validator = new SimpleRoleValidator(userRole);
-            reader = new SecuredTextFileReader(validator); 
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "role.txt"); 
-        }
-        else if (typeInput == "7") 
-        {
-            reader = new JsonFileReader();
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "sample.json");
-        }
-        else if (typeInput == "8")
-        {
-            var encryption = new ReverseEncryption();
-            reader = new EncryptedJsonFileReader(encryption);
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "encrypted.json");
-        }
-        else if (typeInput == "9")
-        {
-            Console.WriteLine("Select your role:");
-            Console.WriteLine("1 - Admin");
-            Console.WriteLine("2 - Employee");
+            Console.Write(" Use encryption? (y/n): ");
+            var encryptInput = Console.ReadLine()?.Trim().ToLower();
+            bool useEncryption = encryptInput == "y";
 
-            string roleInput = "";
-            while (roleInput != "1" && roleInput != "2")
+            bool useRoles = false;
+
+            if (useEncryption)
             {
-                Console.Write("Enter role number: ");
-                roleInput = Console.ReadLine()?.Trim();
+                Console.WriteLine("Encryption selected means Role-based access is disabled.");
+            }
+            else
+            {
+                Console.Write(" Use role-based access? (y/n): ");
+                var roleInput = Console.ReadLine()?.Trim().ToLower();
+                useRoles = roleInput == "y";
             }
 
-            UserRole userRole = roleInput == "1" ? UserRole.Admin : UserRole.Employee;
-            var validator = new SimpleRoleValidator(userRole);
-            reader = new SecuredJsonFileReader(validator);
-
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "role.json");
-        }
-        else // typeInput == "4"
-        {
-            Console.WriteLine("Select your role:");
-            Console.WriteLine("1 - Admin");
-            Console.WriteLine("2 - Employee");
-
-            string roleInput = "";
-            while (roleInput != "1" && roleInput != "2")
+            if (useEncryption && useRoles)
             {
-                Console.Write("Enter role number: ");
-                roleInput = Console.ReadLine()?.Trim();
+                Console.WriteLine("\n Encryption and Role-Based Access cannot be combined.");
+                continue;
             }
 
-            UserRole userRole = roleInput == "1" ? UserRole.Admin : UserRole.Employee;
-            var validator = new SimpleRoleValidator(userRole);
-            reader = new SecuredXmlFileReader(validator);
+            UserRole role = UserRole.Employee;
+            if (useRoles)
+            {
+                Console.WriteLine("Select role: 1 - Admin | 2 - Employee");
+                string roleNum = "";
+                while (roleNum != "1" && roleNum != "2")
+                {
+                    Console.Write("Enter role number: ");
+                    roleNum = Console.ReadLine()?.Trim();
+                }
+                role = roleNum == "1" ? UserRole.Admin : UserRole.Employee;
+            }
 
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "role.xml");
+            IFileReader reader;
+            string defaultPath = "";
+
+            if (fileType == "1") // Text
+            {
+                if (useEncryption)
+                {
+                    reader = new EncryptedTextFileReader(new ReverseEncryption());
+                    defaultPath = GetPath("txt", "encrypted.txt");
+                }
+                else if (useRoles)
+                {
+                    reader = new SecuredTextFileReader(new SimpleRoleValidator(role));
+                    defaultPath = GetPath("txt", "role.txt");
+                }
+                else
+                {
+                    reader = new TextFileReader();
+                    defaultPath = GetPath("txt", "sample.txt");
+                }
+            }
+            else if (fileType == "2") // XML
+            {
+                if (useEncryption)
+                {
+                    reader = new EncryptedXmlFileReader(new ReverseEncryption());
+                    defaultPath = GetPath("xml", "encrypted.xml");
+                }
+                else if (useRoles)
+                {
+                    reader = new SecuredXmlFileReader(new SimpleRoleValidator(role));
+                    defaultPath = GetPath("xml", "role.xml");
+                }
+                else
+                {
+                    reader = new XmlFileReader();
+                    defaultPath = GetPath("xml", "sample.xml");
+                }
+            }
+            else // JSON
+            {
+                if (useEncryption)
+                {
+                    reader = new EncryptedJsonFileReader(new ReverseEncryption());
+                    defaultPath = GetPath("json", "encrypted.json");
+                }
+                else if (useRoles)
+                {
+                    reader = new SecuredJsonFileReader(new SimpleRoleValidator(role));
+                    defaultPath = GetPath("json", "role.json");
+                }
+                else
+                {
+                    reader = new JsonFileReader();
+                    defaultPath = GetPath("json", "sample.json");
+                }
+            }
+
+            Console.Write($" Enter path to file or press ENTER to use default ({defaultPath}): ");
+            string inputPath = Console.ReadLine();
+            string filePath = string.IsNullOrWhiteSpace(inputPath) ? defaultPath : inputPath;
+
+            try
+            {
+                Console.WriteLine("\n --- File Content ---");
+                Console.WriteLine(reader.Read(filePath));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n Could not read file: {ex.Message}");
+            }
+
+            Console.WriteLine("\n Read another file? (y/n): ");
+            var again = Console.ReadLine()?.Trim().ToLower();
+            if (again != "y") break;
         }
 
-        Console.Write($"Enter path to file or press ENTER to use default ({defaultPath}): ");
-        string inputPath = Console.ReadLine();
+        Console.WriteLine(" Goodbye!");
+    }
 
-        string filePath = string.IsNullOrWhiteSpace(inputPath) ? defaultPath : inputPath;
-
-        try
-        {
-            string content = reader.Read(filePath);
-            Console.WriteLine("\n--- File Content ---");
-            Console.WriteLine(content);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("\n Could not read file:");
-            Console.WriteLine(ex.Message);
-        }
+    static string GetPath(string folder, string filename)
+    {
+        return Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", folder, filename);
     }
 }
