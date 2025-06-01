@@ -1,6 +1,8 @@
 ﻿using FileReaderApp.FileReaders;
 using FileReaderApp.Encryption;
 using FileReaderApp.Interfaces;
+using FileReaderApp.Role;
+using UserRole = FileReaderApp.Role.Role;
 using System;
 using System.IO;
 
@@ -11,12 +13,13 @@ class Program
         Console.WriteLine("Choose file type:");
         Console.WriteLine("1 - Plain Text");
         Console.WriteLine("2 - XML");
-        Console.WriteLine("3 - Encrypted Text (reverse-character encryption only)");
+        Console.WriteLine("3 - Encrypted Text (reverse only)");
+        Console.WriteLine("4 - XML with Role-Based Access");
 
         string typeInput = "";
-        while (typeInput != "1" && typeInput != "2" && typeInput != "3")
+        while (!new[] { "1", "2", "3", "4" }.Contains(typeInput))
         {
-            Console.Write("Enter your choice (1 = TXT, 2 = XML, 3 = Encrypted TXT (reverse-character encryption only)): ");
+            Console.Write("Enter your choice (1–4): ");
             typeInput = Console.ReadLine()?.Trim();
         }
 
@@ -33,16 +36,34 @@ class Program
             reader = new XmlFileReader();
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "sample.xml");
         }
-        else // Encrypted Text
+        else if (typeInput == "3")
         {
-            Console.WriteLine("Only reverse-character encryption is supported (e.g. 'olleH' decrypts to 'Hello').");
-
+            Console.WriteLine("Reverse character decryption only.");
             var encryption = new ReverseEncryption();
             reader = new EncryptedTextFileReader(encryption);
             defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "encrypted.txt");
         }
+        else // typeInput == "4"
+        {
+            Console.WriteLine("Select your role:");
+            Console.WriteLine("1 - Admin");
+            Console.WriteLine("2 - Employee");
 
-        Console.Write($"Enter the path to the file, or press ENTER to use default ({defaultPath}): ");
+            string roleInput = "";
+            while (roleInput != "1" && roleInput != "2")
+            {
+                Console.Write("Enter role number: ");
+                roleInput = Console.ReadLine()?.Trim();
+            }
+
+            UserRole userRole = roleInput == "1" ? UserRole.Admin : UserRole.Employee;
+            var validator = new SimpleRoleValidator(userRole);
+            reader = new SecuredXmlFileReader(validator);
+
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "xml", "role.xml");
+        }
+
+        Console.Write($"Enter path to file or press ENTER to use default ({defaultPath}): ");
         string inputPath = Console.ReadLine();
 
         string filePath = string.IsNullOrWhiteSpace(inputPath) ? defaultPath : inputPath;

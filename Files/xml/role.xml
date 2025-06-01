@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<report>
+	<section>Public summary</section>
+	<section role="admin">Admin-only internal metrics</section>
+	<section role="admin,employee">Shared section for admin and employees</section>
+</report>
