@@ -16,10 +16,11 @@ class Program
         Console.WriteLine("3 - Encrypted Text (reverse only)");
         Console.WriteLine("4 - XML with Role-Based Access");
         Console.WriteLine("5 - Encrypted XML (reverse only)");
-        Console.WriteLine("6 - Text with Role-Based Access"); 
+        Console.WriteLine("6 - Text with Role-Based Access");
+        Console.WriteLine("7 - JSON");
 
         string typeInput = "";
-        while (!new[] { "1", "2", "3", "4", "5", "6" }.Contains(typeInput))
+        while (!new[] { "1", "2", "3", "4", "5", "6", "7" }.Contains(typeInput))
         {
             Console.Write("Enter your choice (1 to 6): ");
             typeInput = Console.ReadLine()?.Trim();
@@ -67,8 +68,13 @@ class Program
 
             UserRole userRole = roleInput == "1" ? UserRole.Admin : UserRole.Employee;
             var validator = new SimpleRoleValidator(userRole);
-            reader = new SecuredTextFileReader(validator); // 🔧 NEW
-            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "role.txt"); // 🔧 NEW
+            reader = new SecuredTextFileReader(validator); 
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "txt", "role.txt"); 
+        }
+        else if (typeInput == "7") 
+        {
+            reader = new JsonFileReader();
+            defaultPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Files", "json", "sample.json");
         }
         else // typeInput == "4"
         {
